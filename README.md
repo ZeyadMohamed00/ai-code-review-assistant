@@ -1,0 +1,57 @@
+# AI Code Review Assistant
+
+Reviews a pull request diff and flags likely bugs on the exact changed line. Paste a diff, load a sample, or give a public GitHub PR URL.
+
+**Live demo:** https://codereview-web.vercel.app (API docs: https://codereview-api.vercel.app/docs). "Try demo" reviews a sample PR with a SQL injection bug. The Benchmark tab re-runs the reviewer on the bundled PRs live.
+
+![Review](docs/review.png)
+![Benchmark](docs/benchmark.png)
+
+## Stack
+Python, FastAPI, PostgreSQL (review history), GitHub API (httpx), React + TypeScript (Vite), GitHub Actions (workflow files in `ci/`), optional LLM API.
+
+## Status, honestly
+- **No LLM was used.** The LLM reviewer (`cr/llm.py`, OpenAI-compatible, enabled by `OPENAI_API_KEY`) is written but was **never run**: no key was available. Everything measured below is the **rule-based reviewer** only.
+- Posting review comments to GitHub (`cr.github.post_review`) is written and tested with a mocked transport only. It was never run against GitHub, and the public demo has no token, so it only reads.
+- Fetching a public PR diff from GitHub was run live (unauthenticated, rate-limited).
+- GitHub Actions files are in `ci/` (the push token lacked `workflow` scope). Never run on GitHub.
+- Docker files written, not built here. No login: history is separated per browser id.
+
+## Evaluation (real run: `python eval/run_eval.py`, output in `eval/results.json`)
+40 synthetic PRs written by hand: 20 PRs with 21 well-known bug patterns, 8 PRs with logic bugs that have no pattern, 12 clean PRs, including look-alikes meant to trigger false positives.
+
+| Metric | Result |
+|---|---|
+| Detection rate, all 29 known bugs | **72.4%** (21/29) |
+| Pattern bugs | 100% (21/21) |
+| Logic bugs | **0%** (0/8) |
+| False positives | **3**, on 3 of 12 clean PRs (precision 87.5%) |
+
+What this does and does not mean:
+- The author wrote both the rules and the PRs, so **100% on pattern bugs is optimistic**. It shows the rules work as designed, not that they generalize.
+- The 0% on logic bugs is the real limit of pattern rules (off-by-one, wrong operator, swapped arguments). That is the gap an LLM reviewer is meant to fill, and this repo does not show that it does.
+- The 3 false positives are kept, not tuned away: a constant table name in an f-string SQL, a bad pattern named inside a string, and `password_hint="..."` flagged as a secret.
+- "Detected" means a finding with the right category on the exact changed line.
+- Not measured: real-world PRs. Only a smoke check on one real public PR (no findings, not labeled).
+
+## Run
+```
+docker compose up --build            # API :8000
+pip install -r requirements.txt && DATABASE_URL=postgresql+psycopg2://... uvicorn cr.main:app
+cd frontend && npm install && npm run dev
+pytest -q && python eval/run_eval.py && cd frontend && npm test
+```
+
+## How it works / key decisions
+- `cr/diffparse.py` reads a unified diff and keeps only **added lines with their line number in the new file**, so a finding points at the line the author wrote.
+- `cr/rules.py` runs regex rules on added `.py` lines only (comments skipped). A few rules look ahead a few added lines (`except:` then `pass`, `requests.get(` then `timeout=`).
+- The benchmark diffs are generated with `difflib` from before/after files, so line numbers are exact and expected lines are found by text, not typed by hand.
+- LLM findings (if a key is set) are tagged `source: llm` and merged with rule findings, so the two can be compared.
+- PR URLs are matched against a strict `github.com/<o>/<r>/pull/<n>` pattern before any request (no arbitrary URL fetching).
+
+## 5 things to understand
+1. Why only added lines and new-file line numbers matter in a diff.
+2. What a pattern rule can and cannot see (syntax patterns, not meaning).
+3. How detection rate and false positives are counted here, and why 100% on your own test set proves little.
+4. Why logic bugs scored 0% and what an LLM would add.
+5. What is unproven: the LLM path, posting comments to GitHub, and the Actions workflows.

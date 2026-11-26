@@ -1,0 +1,366 @@
+{
+ "prs": 40,
+ "prs_with_bugs": 28,
+ "clean_prs": 12,
+ "bugs": 29,
+ "detected": 21,
+ "detection_rate": 0.724,
+ "pr_fully_detected": 20,
+ "by_kind": {
+  "pattern": {
+   "bugs": 21,
+   "found": 21,
+   "rate": 1.0
+  },
+  "logic": {
+   "bugs": 8,
+   "found": 0,
+   "rate": 0.0
+  }
+ },
+ "false_positives": 3,
+ "precision": 0.875,
+ "clean_prs_with_false_positive": 3,
+ "false_positive_list": [
+  {
+   "case": "c09",
+   "title": "Constant table name in SQL (safe, but looks risky)",
+   "line": 13,
+   "category": "sql-injection"
+  },
+  {
+   "case": "c11",
+   "title": "Doc mentions bad patterns",
+   "line": 11,
+   "category": "yaml-unsafe-load"
+  },
+  {
+   "case": "c12",
+   "title": "Keyword passed to class",
+   "line": 10,
+   "category": "hardcoded-secret"
+  }
+ ],
+ "rows": [
+  {
+   "id": "p01",
+   "title": "Add tag collector",
+   "kind": "pattern",
+   "expected": 1,
+   "found": 1,
+   "false_positives": 0
+  },
+  {
+   "id": "p02",
+   "title": "Cache user lookups",
+   "kind": "pattern",
+   "expected": 1,
+   "found": 1,
+   "false_positives": 0
+  },
+  {
+   "id": "p03",
+   "title": "Parse config",
+   "kind": "pattern",
+   "expected": 1,
+   "found": 1,
+   "false_positives": 0
+  },
+  {
+   "id": "p04",
+   "title": "Safe int",
+   "kind": "pattern",
+   "expected": 1,
+   "found": 1,
+   "false_positives": 0
+  },
+  {
+   "id": "p05",
+   "title": "Null check",
+   "kind": "pattern",
+   "expected": 1,
+   "found": 1,
+   "false_positives": 0
+  },
+  {
+   "id": "p06",
+   "title": "User search",
+   "kind": "pattern",
+   "expected": 1,
+   "found": 1,
+   "false_positives": 0
+  },
+  {
+   "id": "p07",
+   "title": "Delete user",
+   "kind": "pattern",
+   "expected": 1,
+   "found": 1,
+   "false_positives": 0
+  },
+  {
+   "id": "p08",
+   "title": "Order lookup",
+   "kind": "pattern",
+   "expected": 1,
+   "found": 1,
+   "false_positives": 0
+  },
+  {
+   "id": "p09",
+   "title": "Payment client",
+   "kind": "pattern",
+   "expected": 1,
+   "found": 1,
+   "false_positives": 0
+  },
+  {
+   "id": "p10",
+   "title": "DB connect",
+   "kind": "pattern",
+   "expected": 1,
+   "found": 1,
+   "false_positives": 0
+  },
+  {
+   "id": "p11",
+   "title": "Calculator",
+   "kind": "pattern",
+   "expected": 1,
+   "found": 1,
+   "false_positives": 0
+  },
+  {
+   "id": "p12",
+   "title": "Run user script",
+   "kind": "pattern",
+   "expected": 1,
+   "found": 1,
+   "false_positives": 0
+  },
+  {
+   "id": "p13",
+   "title": "Ping host",
+   "kind": "pattern",
+   "expected": 1,
+   "found": 1,
+   "false_positives": 0
+  },
+  {
+   "id": "p14",
+   "title": "Load settings",
+   "kind": "pattern",
+   "expected": 1,
+   "found": 1,
+   "false_positives": 0
+  },
+  {
+   "id": "p15",
+   "title": "Status check",
+   "kind": "pattern",
+   "expected": 1,
+   "found": 1,
+   "false_positives": 0
+  },
+  {
+   "id": "p16",
+   "title": "Dev server",
+   "kind": "pattern",
+   "expected": 1,
+   "found": 1,
+   "false_positives": 0
+  },
+  {
+   "id": "p17",
+   "title": "Read notes",
+   "kind": "pattern",
+   "expected": 1,
+   "found": 1,
+   "false_positives": 0
+  },
+  {
+   "id": "p18",
+   "title": "Fetch rates",
+   "kind": "pattern",
+   "expected": 1,
+   "found": 1,
+   "false_positives": 0
+  },
+  {
+   "id": "p19",
+   "title": "Two bugs in one PR",
+   "kind": "pattern",
+   "expected": 2,
+   "found": 2,
+   "false_positives": 0
+  },
+  {
+   "id": "p20",
+   "title": "Webhook post",
+   "kind": "pattern",
+   "expected": 1,
+   "found": 1,
+   "false_positives": 0
+  },
+  {
+   "id": "l01",
+   "title": "Average",
+   "kind": "logic",
+   "expected": 1,
+   "found": 0,
+   "false_positives": 0
+  },
+  {
+   "id": "l02",
+   "title": "Pairs",
+   "kind": "logic",
+   "expected": 1,
+   "found": 0,
+   "false_positives": 0
+  },
+  {
+   "id": "l03",
+   "title": "Page slice",
+   "kind": "logic",
+   "expected": 1,
+   "found": 0,
+   "false_positives": 0
+  },
+  {
+   "id": "l04",
+   "title": "Discount",
+   "kind": "logic",
+   "expected": 1,
+   "found": 0,
+   "false_positives": 0
+  },
+  {
+   "id": "l05",
+   "title": "Adult check",
+   "kind": "logic",
+   "expected": 1,
+   "found": 0,
+   "false_positives": 0
+  },
+  {
+   "id": "l06",
+   "title": "Max of list",
+   "kind": "logic",
+   "expected": 1,
+   "found": 0,
+   "false_positives": 0
+  },
+  {
+   "id": "l07",
+   "title": "Swap args",
+   "kind": "logic",
+   "expected": 1,
+   "found": 0,
+   "false_positives": 0
+  },
+  {
+   "id": "l08",
+   "title": "Retry loop",
+   "kind": "logic",
+   "expected": 1,
+   "found": 0,
+   "false_positives": 0
+  },
+  {
+   "id": "c01",
+   "title": "Specific except",
+   "kind": "clean",
+   "expected": 0,
+   "found": 0,
+   "false_positives": 0
+  },
+  {
+   "id": "c02",
+   "title": "None identity",
+   "kind": "clean",
+   "expected": 0,
+   "found": 0,
+   "false_positives": 0
+  },
+  {
+   "id": "c03",
+   "title": "Parameterized query",
+   "kind": "clean",
+   "expected": 0,
+   "found": 0,
+   "false_positives": 0
+  },
+  {
+   "id": "c04",
+   "title": "Secret from env",
+   "kind": "clean",
+   "expected": 0,
+   "found": 0,
+   "false_positives": 0
+  },
+  {
+   "id": "c05",
+   "title": "File with context manager",
+   "kind": "clean",
+   "expected": 0,
+   "found": 0,
+   "false_positives": 0
+  },
+  {
+   "id": "c06",
+   "title": "Timeout set (multi-line)",
+   "kind": "clean",
+   "expected": 0,
+   "found": 0,
+   "false_positives": 0
+  },
+  {
+   "id": "c07",
+   "title": "Safe subprocess",
+   "kind": "clean",
+   "expected": 0,
+   "found": 0,
+   "false_positives": 0
+  },
+  {
+   "id": "c08",
+   "title": "literal_eval and safe_load",
+   "kind": "clean",
+   "expected": 0,
+   "found": 0,
+   "false_positives": 0
+  },
+  {
+   "id": "c09",
+   "title": "Constant table name in SQL (safe, but looks risky)",
+   "kind": "clean",
+   "expected": 0,
+   "found": 0,
+   "false_positives": 1
+  },
+  {
+   "id": "c10",
+   "title": "Mutable default avoided",
+   "kind": "clean",
+   "expected": 0,
+   "found": 0,
+   "false_positives": 0
+  },
+  {
+   "id": "c11",
+   "title": "Doc mentions bad patterns",
+   "kind": "clean",
+   "expected": 0,
+   "found": 0,
+   "false_positives": 1
+  },
+  {
+   "id": "c12",
+   "title": "Keyword passed to class",
+   "kind": "clean",
+   "expected": 0,
+   "found": 0,
+   "false_positives": 1
+  }
+ ]
+}

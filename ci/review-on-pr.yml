@@ -1,0 +1,26 @@
+# Move to .github/workflows/review.yml to review every PR of a repo that vendors this tool.
+# It prints findings in the job log. Posting inline comments uses cr.github.post_review (needs a token with pull-requests: write).
+name: code-review
+on: pull_request
+permissions: {contents: read, pull-requests: read}
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: {repository: ZeyadMohamed00/ai-code-review-assistant, path: reviewer}
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12"}
+      - run: pip install httpx
+      - run: |
+          cd reviewer
+          python - <<'PY'
+          import os, sys
+          from cr import github
+          from cr.rules import review_diff
+          o, r = os.environ["REPO"].split("/")
+          fs = review_diff(github.fetch_diff(o, r, int(os.environ["PR"])))
+          for f in fs: print(f"{f.file}:{f.line} [{f.severity}] {f.category}: {f.message}")
+          print(f"{len(fs)} finding(s)")
+          PY
+        env: {REPO: "${{ github.repository }}", PR: "${{ github.event.number }}", GITHUB_TOKEN: "${{ github.token }}"}
