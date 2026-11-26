@@ -7,6 +7,8 @@ from pydantic import BaseModel, Field
 
 from . import db as D
 from . import github, llm
+from .auth import identity
+from .auth import router as auth_router
 from .rules import review_diff
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
@@ -15,10 +17,8 @@ from eval.dataset import CASES, diff_for  # noqa: E402
 from eval.run_eval import evaluate  # noqa: E402
 
 
-def owner(x_client_id: str = Header(default="")):
-    if not (8 <= len(x_client_id) <= 64) or not x_client_id.replace("-", "").isalnum():
-        raise HTTPException(400, "Missing or invalid X-Client-Id header")
-    return x_client_id
+def owner(authorization: str = Header(default=""), x_client_id: str = Header(default="")):
+    return identity(authorization, x_client_id)
 
 
 class DiffIn(BaseModel):
@@ -41,6 +41,7 @@ def run_review(diff: str):
 def create_app():
     D.init()
     app = FastAPI(title="AI Code Review Assistant", version="1.0.0")
+    app.include_router(auth_router)
     app.add_middleware(
         CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"]
     )

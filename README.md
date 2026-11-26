@@ -32,7 +32,6 @@ Python, FastAPI, PostgreSQL (review history), GitHub API (httpx), React + TypeSc
 - Posting review comments to GitHub (`cr.github.post_review`) is written and tested with a mocked transport only. It was never run against GitHub, and the public demo has no token, so it only reads.
 - Fetching a public PR diff from GitHub was run live (unauthenticated, rate-limited).
 - GitHub Actions files are in `ci/` (the push token lacked `workflow` scope). Never run on GitHub.
-- Docker files written, not built here. No login: history is separated per browser id.
 
 ## Evaluation (real run: `python eval/run_eval.py`, output in `eval/results.json`)
 40 synthetic PRs written by hand: 20 PRs with 21 well-known bug patterns, 8 PRs with logic bugs that have no pattern, 12 clean PRs, including look-alikes meant to trigger false positives.
@@ -72,3 +71,10 @@ pytest -q && python eval/run_eval.py && cd frontend && npm test
 3. How detection rate and false positives are counted here, and why 100% on your own test set proves little.
 4. Why logic bugs scored 0% and what an LLM would add.
 5. What is unproven: the LLM path, posting comments to GitHub, and the Actions workflows.
+
+## Accounts and persistence
+- **Real accounts:** `POST /auth/register`, `POST /auth/login`, `GET /auth/me`. Passwords are salted PBKDF2-SHA256 hashes; sessions are signed JWTs (7 days) sent as `Authorization: Bearer`. Set `JWT_SECRET` in production; if it is unset, a secret is derived from `DATABASE_URL`.
+- **Persistence:** a signed-in user's data is stored in PostgreSQL under their own account key (`user:<id>`) and is only reachable with their token. New accounts start empty.
+- **Guest demo:** without logging in, "Continue as guest" uses an anonymous browser id with clearly labeled sample data. Guest ids can never collide with or impersonate an account.
+- Tests: `tests/test_auth.py` (register, login, wrong or weak password, duplicate email, bad token, isolation) and `frontend/src/auth.test.tsx`.
+- Not built: email verification, password reset, rate limiting and refresh tokens (listed as next steps).
