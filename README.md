@@ -7,6 +7,8 @@ Reviews a pull request diff and flags likely bugs on the exact changed line. Pas
 ![Review](docs/review.png)
 ![Benchmark](docs/benchmark.png)
 
+The review page shows findings inline under the flagged diff line, with a severity filter and Markdown export. History entries made in the same browser can be reopened.
+
 ## Stack
 Python, FastAPI, PostgreSQL (review history), GitHub API (httpx), React + TypeScript (Vite), GitHub Actions (workflow files in `ci/`), optional LLM API.
 
