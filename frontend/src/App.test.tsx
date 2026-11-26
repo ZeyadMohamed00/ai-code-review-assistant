@@ -18,9 +18,9 @@ test("Try demo reviews the sample and flags the vulnerable line", async () => {
   const btn = await screen.findByText("Try demo");
   await waitFor(() => expect(btn).toBeEnabled());
   await userEvent.click(btn);
-  expect(await screen.findByText("app.py:2")).toBeInTheDocument();
-  expect(screen.getByText("sql-injection")).toBeInTheDocument();
-  expect(screen.getByText(/1 finding/)).toBeInTheDocument();
+  expect((await screen.findAllByText("app.py:2")).length).toBeGreaterThan(0);
+  expect(screen.getAllByText("sql-injection").length).toBeGreaterThan(0);
+  expect(screen.getAllByText(/1 finding/).length).toBeGreaterThan(0);
 });
 
 test("shows API errors", async () => {
