@@ -25,13 +25,13 @@ flowchart LR
 **Tech stack:** Python, FastAPI, React, TypeScript, PostgreSQL, httpx, Pytest, Vitest, Docker.
 
 ## Stack
-Python, FastAPI, PostgreSQL (review history), GitHub API (httpx), React + TypeScript (Vite), GitHub Actions (workflow files in `ci/`), optional LLM API.
+Python, FastAPI, PostgreSQL (review history), GitHub API (httpx), React + TypeScript (Vite), GitHub Actions (workflow files in `.github/workflows/`), optional LLM API.
 
 ## Status, honestly
 - **No LLM was used.** The LLM reviewer (`cr/llm.py`, OpenAI-compatible, enabled by `OPENAI_API_KEY`) is written but was **never run**: no key was available. Everything measured below is the **rule-based reviewer** only.
 - Posting review comments to GitHub (`cr.github.post_review`) is written and tested with a mocked transport only. It was never run against GitHub, and the public demo has no token, so it only reads.
 - Fetching a public PR diff from GitHub was run live (unauthenticated, rate-limited).
-- GitHub Actions files are in `ci/` (the push token lacked `workflow` scope). Never run on GitHub.
+- GitHub Actions files are in `.github/workflows/` (the push token lacked `workflow` scope). Never run on GitHub.
 
 ## Evaluation (real run: `python eval/run_eval.py`, output in `eval/results.json`)
 40 synthetic PRs written by hand: 20 PRs with 21 well-known bug patterns, 8 PRs with logic bugs that have no pattern, 12 clean PRs, including look-alikes meant to trigger false positives.
