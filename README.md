@@ -9,6 +9,21 @@ Reviews a pull request diff and flags likely bugs on the exact changed line. Pas
 
 The review page shows findings inline under the flagged diff line, with a severity filter and Markdown export. History entries made in the same browser can be reopened.
 
+## System overview
+```mermaid
+flowchart LR
+  IN[Pasted diff, sample or GitHub PR URL] --> DP[Diff parser: added lines with new-file line numbers]
+  DP --> RU[Rule engine]
+  DP -. optional, key required .-> LLM[LLM reviewer]
+  RU --> F[Findings: severity, file, line]
+  LLM --> F
+  F --> UI[React diff viewer + Markdown export]
+  F --> DB[(PostgreSQL review history)]
+  BM[40-PR labeled benchmark] --> RU
+```
+
+**Tech stack:** Python, FastAPI, React, TypeScript, PostgreSQL, httpx, Pytest, Vitest, Docker.
+
 ## Stack
 Python, FastAPI, PostgreSQL (review history), GitHub API (httpx), React + TypeScript (Vite), GitHub Actions (workflow files in `ci/`), optional LLM API.
 

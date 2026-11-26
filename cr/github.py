@@ -1,6 +1,8 @@
 """GitHub API: fetch a PR diff, and (with a token) post review comments."""
+
 import os
 import re
+
 import httpx
 
 PR_URL = re.compile(r"^https://github\.com/([\w.-]+)/([\w.-]+)/pull/(\d+)/?$")
@@ -33,9 +35,28 @@ def post_review(owner, repo, number, commit_sha, findings, client: httpx.Client 
     if not token:
         raise PermissionError("GITHUB_TOKEN not configured")
     c = client or httpx.Client(timeout=20)
-    body = {"commit_id": commit_sha, "event": "COMMENT", "body": f"Automated review: {len(findings)} possible issue(s).",
-            "comments": [{"path": f.file, "line": f.line, "side": "RIGHT", "body": f"**{f.category}** ({f.severity}): {f.message}"} for f in findings]}
-    r = c.post(f"https://api.github.com/repos/{owner}/{repo}/pulls/{number}/reviews", json=body,
-               headers={"Authorization": f"Bearer {token}", "Accept": "application/vnd.github+json", "User-Agent": "code-review-assistant"})
+    body = {
+        "commit_id": commit_sha,
+        "event": "COMMENT",
+        "body": f"Automated review: {len(findings)} possible issue(s).",
+        "comments": [
+            {
+                "path": f.file,
+                "line": f.line,
+                "side": "RIGHT",
+                "body": f"**{f.category}** ({f.severity}): {f.message}",
+            }
+            for f in findings
+        ],
+    }
+    r = c.post(
+        f"https://api.github.com/repos/{owner}/{repo}/pulls/{number}/reviews",
+        json=body,
+        headers={
+            "Authorization": f"Bearer {token}",
+            "Accept": "application/vnd.github+json",
+            "User-Agent": "code-review-assistant",
+        },
+    )
     r.raise_for_status()
     return r.json()

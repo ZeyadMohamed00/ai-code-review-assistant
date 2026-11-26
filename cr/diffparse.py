@@ -1,4 +1,5 @@
 """Parse a unified diff into added lines with their line numbers in the new file."""
+
 import re
 from dataclasses import dataclass, field
 

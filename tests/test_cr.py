@@ -1,10 +1,11 @@
-from fastapi.testclient import TestClient
 import httpx
 import pytest
-from cr.diffparse import parse
-from cr.rules import review_diff
+from fastapi.testclient import TestClient
+
 from cr import github
+from cr.diffparse import parse
 from cr.main import app
+from cr.rules import review_diff
 from eval.run_eval import evaluate
 
 c = TestClient(app)
@@ -37,7 +38,9 @@ def test_rules_report_correct_line_and_ignore_comments_and_other_files():
 def test_benchmark_numbers_are_stable_and_honest():
     r = evaluate()
     assert r["by_kind"]["pattern"]["rate"] == 1.0
-    assert r["by_kind"]["logic"]["found"] == 0  # rules do not catch logic bugs, and the benchmark says so
+    assert (
+        r["by_kind"]["logic"]["found"] == 0
+    )  # rules do not catch logic bugs, and the benchmark says so
     assert 0 < r["detection_rate"] < 1 and r["false_positives"] == 3
 
 
@@ -64,16 +67,27 @@ def test_pr_url_validation_and_fetch_with_mock_transport():
 
 def test_post_review_builds_comments_and_needs_token(monkeypatch):
     from cr.rules import Finding
+
     monkeypatch.delenv("GITHUB_TOKEN", raising=False)
     with pytest.raises(PermissionError):
         github.post_review("a", "b", 1, "sha", [])
     monkeypatch.setenv("GITHUB_TOKEN", "x")
     seen = {}
+
     def handler(req):
-        import json; seen.update(json.loads(req.content)); return httpx.Response(200, json={"id": 1})
+        import json
+
+        seen.update(json.loads(req.content))
+        return httpx.Response(200, json={"id": 1})
+
     cl = httpx.Client(transport=httpx.MockTransport(handler))
     github.post_review("a", "b", 1, "sha", [Finding("m.py", 11, "eval-exec", "high", "msg")], cl)
-    assert seen["comments"][0] == {"path": "m.py", "line": 11, "side": "RIGHT", "body": "**eval-exec** (high): msg"}
+    assert seen["comments"][0] == {
+        "path": "m.py",
+        "line": 11,
+        "side": "RIGHT",
+        "body": "**eval-exec** (high): msg",
+    }
 
 
 def test_samples_endpoint():
