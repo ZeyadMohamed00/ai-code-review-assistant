@@ -1,5 +1,7 @@
 # AI Code Review Assistant
 
+[![CI](https://github.com/ZeyadMohamed00/ai-code-review-assistant/actions/workflows/ci.yml/badge.svg)](https://github.com/ZeyadMohamed00/ai-code-review-assistant/actions/workflows/ci.yml)
+
 Reviews a pull request diff and flags likely bugs on the exact changed line. Paste a diff, load a sample, or give a public GitHub PR URL.
 
 **Live demo:** https://codereview-web.vercel.app (API docs: https://codereview-api.vercel.app/docs). "Try demo" reviews a sample PR with a SQL injection bug. The Benchmark tab re-runs the reviewer on the bundled PRs live.
