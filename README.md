@@ -4,7 +4,7 @@
 
 Reviews a pull request diff and flags likely bugs on the exact changed line. Paste a diff, load a sample, or give a public GitHub PR URL.
 
-**Live demo:** https://codereview-web.vercel.app (API docs: https://codereview-api.vercel.app/docs). "Try demo" reviews a sample PR with a SQL injection bug. The Benchmark tab re-runs the reviewer on the bundled PRs live.
+**Live app:** https://codereview-web.vercel.app (API docs: https://codereview-api.vercel.app/docs). "Review sample PR" reviews a sample PR with a SQL injection bug. The Benchmark tab re-runs the reviewer on the bundled PRs live.
 
 ![Review](docs/review.png)
 ![Benchmark](docs/benchmark.png)
@@ -77,7 +77,7 @@ pytest -q && python eval/run_eval.py && cd frontend && npm test
 ## Accounts and persistence
 - **Real accounts:** `POST /auth/register`, `POST /auth/login`, `GET /auth/me`. Passwords are salted PBKDF2-SHA256 hashes; sessions are signed JWTs (7 days) sent as `Authorization: Bearer`. Set `JWT_SECRET` in production; if it is unset, a demo-only secret is derived from `DATABASE_URL` and a warning is logged.
 - **Persistence:** a signed-in user's data is stored in PostgreSQL under their own account key (`user:<id>`) and is only reachable with their token. New accounts start empty.
-- **Guest demo:** without logging in, "Continue as guest" uses an anonymous browser id with clearly labeled sample data. Guest ids can never collide with or impersonate an account.
+- **Guest session:** without logging in, "Explore without signing up" uses an anonymous browser id with clearly labeled sample data. Guest ids can never collide with or impersonate an account.
 - Tests: `tests/test_auth.py` (register, login, wrong or weak password, duplicate email, bad token, isolation) and `frontend/src/auth.test.tsx`.
 - Login is throttled: 5 wrong passwords per email in 5 minutes returns `429` with `Retry-After` (`LOGIN_MAX_FAILS`, `LOGIN_FAIL_WINDOW_S`). The counter lives in process memory, so on several instances or serverless functions each one counts separately; use a shared limiter for hard guarantees. With `APP_ENV=production` a missing `JWT_SECRET` stops the app at startup instead of falling back.
 - Not built: email verification, password reset and refresh tokens (listed as next steps).

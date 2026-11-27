@@ -24,7 +24,7 @@ function Main() {
   return (
     <Shell brand="ReviewBot" tagline="Diff review assistant" page={page} onNav={(p) => setPage(p as Page)}
       nav={[{ id: "review", label: "Review", icon: "✎" }, { id: "benchmark", label: "Benchmark", icon: "▦" }, { id: "history", label: "History", icon: "☰", badge: history.length || undefined }]}
-      footer={<div className="muted small">DEMO: no LLM key is configured, so the rule-based reviewer runs.</div>}>
+      footer={<div className="muted small">Rule-based reviewer. No LLM is configured.</div>}>
       {err && <div className="card" role="alert" style={{ borderColor: "#ef4444", marginBottom: 12 }}>{err}</div>}
       {page === "review" && <Review samples={samples} result={result} onResult={onResult} />}
       {page === "benchmark" && <Benchmark />}
@@ -43,7 +43,7 @@ function Review({ samples, result, onResult }: { samples: Sample[]; result: Resu
     setBusy(true);
     try { const r = await fn(); onResult({ ...r, diff: d, source }); setDiff(d); toast(`${r.findings.length} finding(s)`); } catch (e) { toast((e as Error).message, "bad"); } finally { setBusy(false); }
   };
-  const tryDemo = () => { const s = samples.find((x) => x.id === "p06") ?? samples[0]; if (s) { setDiff(s.diff); run(() => api.review(s.diff), s.diff, `sample ${s.id}`); } };
+  const reviewSample = () => { const s = samples.find((x) => x.id === "p06") ?? samples[0]; if (s) { setDiff(s.diff); run(() => api.review(s.diff), s.diff, `sample ${s.id}`); } };
   const findings = result?.findings ?? [];
   const shown = findings.filter((f) => sev === "all" || f.severity === sev);
   const bySev = useMemo(() => { const m: Record<string, number> = {}; findings.forEach((f) => { m[f.severity] = (m[f.severity] ?? 0) + 1; }); return m; }, [findings]);
@@ -64,7 +64,7 @@ function Review({ samples, result, onResult }: { samples: Sample[]; result: Resu
   return (
     <>
       <div className="page-h"><div><h1>Review a pull request</h1><p>Flags likely bugs on the exact changed line. Paste a diff, load a sample, or give a public GitHub PR URL.</p></div>
-        <div className="sp"><button className="btn primary" disabled={busy || !samples.length} onClick={tryDemo}>Try demo</button></div></div>
+        <div className="sp"><button className="btn primary" disabled={busy || !samples.length} onClick={reviewSample}>Review sample PR</button></div></div>
       <div className="grid g-main">
         <div className="card col"><Tabs tabs={[{ id: "paste" as const, label: "Paste diff" }, { id: "pr" as const, label: "GitHub PR" }, { id: "sample" as const, label: "Samples" }]} value={mode} onChange={setMode} />
           {mode === "paste" && <><textarea aria-label="Diff" className="code" placeholder="Paste a unified diff here" value={diff} onChange={(e) => setDiff(e.target.value)} /><button className="btn primary" disabled={busy || !diff.trim()} onClick={() => run(() => api.review(diff), diff, "pasted diff")}>{busy ? "Reviewing..." : "Review pasted diff"}</button></>}

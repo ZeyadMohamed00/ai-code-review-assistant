@@ -5,7 +5,7 @@ import { App } from "./App";
 
 const samples = [{ id: "p06", title: "User search", kind: "pattern", diff: "--- a/app.py\n+++ b/app.py\n@@ -1,1 +1,2 @@\n x\n+cur.execute(f\"...\")\n" }];
 
-test("Try demo reviews the sample and flags the vulnerable line", async () => {
+test("Review sample reviews the sample and flags the vulnerable line", async () => {
   vi.stubGlobal("fetch", vi.fn(async (full: string, init?: RequestInit) => {
     const url = full.replace(/^\/api/, "");
     if (url === "/samples") return { ok: true, status: 200, json: async () => samples } as Response;
@@ -15,7 +15,7 @@ test("Try demo reviews the sample and flags the vulnerable line", async () => {
     return { ok: false, status: 404, statusText: "nf", json: async () => ({}) } as Response;
   }));
   render(<App />);
-  const btn = await screen.findByText("Try demo");
+  const btn = await screen.findByText("Review sample PR");
   await waitFor(() => expect(btn).toBeEnabled());
   await userEvent.click(btn);
   expect((await screen.findAllByText("app.py:2")).length).toBeGreaterThan(0);
