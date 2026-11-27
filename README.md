@@ -67,7 +67,7 @@ pytest -q && python eval/run_eval.py && cd frontend && npm test
 - LLM findings (if a key is set) are tagged `source: llm` and merged with rule findings, so the two can be compared.
 - PR URLs are matched against a strict `github.com/<o>/<r>/pull/<n>` pattern before any request (no arbitrary URL fetching).
 
-## 5 things to understand
+## Key concepts
 1. Why only added lines and new-file line numbers matter in a diff.
 2. What a pattern rule can and cannot see (syntax patterns, not meaning).
 3. How detection rate and false positives are counted here, and why 100% on your own test set proves little.
@@ -75,12 +75,16 @@ pytest -q && python eval/run_eval.py && cd frontend && npm test
 5. What is unproven: the LLM path, posting comments to GitHub, and the Actions workflows.
 
 ## Accounts and persistence
-- **Real accounts:** `POST /auth/register`, `POST /auth/login`, `GET /auth/me`. Passwords are salted PBKDF2-SHA256 hashes; sessions are signed JWTs (7 days) sent as `Authorization: Bearer`. Set `JWT_SECRET` in production; if it is unset, a secret is derived from `DATABASE_URL`.
+- **Real accounts:** `POST /auth/register`, `POST /auth/login`, `GET /auth/me`. Passwords are salted PBKDF2-SHA256 hashes; sessions are signed JWTs (7 days) sent as `Authorization: Bearer`. Set `JWT_SECRET` in production; if it is unset, a demo-only secret is derived from `DATABASE_URL` and a warning is logged.
 - **Persistence:** a signed-in user's data is stored in PostgreSQL under their own account key (`user:<id>`) and is only reachable with their token. New accounts start empty.
 - **Guest demo:** without logging in, "Continue as guest" uses an anonymous browser id with clearly labeled sample data. Guest ids can never collide with or impersonate an account.
 - Tests: `tests/test_auth.py` (register, login, wrong or weak password, duplicate email, bad token, isolation) and `frontend/src/auth.test.tsx`.
-- Not built: email verification, password reset, rate limiting and refresh tokens (listed as next steps).
+- Login is throttled: 5 wrong passwords per email in 5 minutes returns `429` with `Retry-After` (`LOGIN_MAX_FAILS`, `LOGIN_FAIL_WINDOW_S`). The counter lives in process memory, so on several instances or serverless functions each one counts separately; use a shared limiter for hard guarantees. With `APP_ENV=production` a missing `JWT_SECRET` stops the app at startup instead of falling back.
+- Not built: email verification, password reset and refresh tokens (listed as next steps).
 
 ## Database migrations
 
 Schema changes are versioned with Alembic (`migrations/`, baseline `0001`). Point `DATABASE_URL` at the database and run `alembic upgrade head`. The baseline was generated from the models and checked by running upgrade, downgrade and upgrade again on SQLite; I did not run it against a fresh PostgreSQL instance here. The running app still creates missing tables on start.
+
+## Per-category results (real run, `python eval/run_eval.py`, in `eval/results.json` under `per_category`)
+Every pattern category the rules cover has recall 1.0 on this set (each has 1 to 3 cases, so this is a small sample). Precision is below 1.0 for three categories: `sql-injection` 0.75, `hardcoded-secret` 0.667 and `yaml-unsafe-load` 0.5, each from false positives on the clean PRs listed in `false_positive_list`. The 8 `logic` bugs are all missed by the rule reviewer (recall 0.0): rules cannot see logic errors, which is the gap the unrun LLM reviewer is meant to fill. The dataset is written by the project author, so these figures are a regression check, not a measure of real-world performance.

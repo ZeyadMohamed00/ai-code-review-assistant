@@ -13,6 +13,11 @@ def evaluate(reviewer=review_diff):
     rows, tp, fp, fn = [], 0, 0, 0
     by_kind = {k: {"bugs": 0, "found": 0} for k in ("pattern", "logic")}
     fp_list = []
+    cat = {}
+
+    def bump(k, f):
+        cat.setdefault(k, {"tp": 0, "fp": 0, "fn": 0})[f] += 1
+
     clean_with_fp = 0
     for c in CASES:
         exp = expected(c)
@@ -25,12 +30,17 @@ def evaluate(reviewer=review_diff):
             if hit:
                 matched.add(hit)
                 tp += 1
+                bump(f.category, "tp")
             else:
                 fp += 1
+                bump(f.category, "fp")
                 fp_list.append(
                     {"case": c["id"], "title": c["title"], "line": f.line, "category": f.category}
                 )
         fn += len(exp) - len(matched)
+        for e in exp:
+            if e not in matched:
+                bump(e[2], "fn")
         if c["kind"] in by_kind:
             by_kind[c["kind"]]["bugs"] += len(exp)
             by_kind[c["kind"]]["found"] += len(matched)
@@ -47,6 +57,13 @@ def evaluate(reviewer=review_diff):
             }
         )
     bugs = tp + fn
+    per_category = {}
+    for k, v in sorted(cat.items()):
+        pr = v["tp"] / (v["tp"] + v["fp"]) if v["tp"] + v["fp"] else None
+        rc = v["tp"] / (v["tp"] + v["fn"]) if v["tp"] + v["fn"] else None
+        f1 = 2 * pr * rc / (pr + rc) if pr and rc else None
+        per_category[k] = {**v, "precision": None if pr is None else round(pr, 3),
+                           "recall": None if rc is None else round(rc, 3), "f1": None if f1 is None else round(f1, 3)}
     prs_with_bug = [r for r in rows if r["expected"]]
     return {
         "prs": len(CASES),
@@ -60,6 +77,7 @@ def evaluate(reviewer=review_diff):
         "false_positives": fp,
         "precision": round(tp / (tp + fp), 3) if tp + fp else None,
         "clean_prs_with_false_positive": clean_with_fp,
+        "per_category": per_category,
         "false_positive_list": fp_list,
         "rows": rows,
     }
